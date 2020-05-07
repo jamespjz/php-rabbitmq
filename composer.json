@@ -1,0 +1,22 @@
+{
+    "name": "jamespi/php-rabbitmq",
+    "description": "php整合rabbitmq进行消息中间件系统开发",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "pijianzhong",
+            "email": "jianzhongpi@163.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php":">=7.0",
+        "php-amqplib/php-amqplib": "2.11.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jamespi\\RabbitMQ\\": "/"
+        }
+    }
+}
