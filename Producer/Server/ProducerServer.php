@@ -54,7 +54,7 @@ class ProducerServer implements ProducerInterface
      * @param string $typeName 交换器类型
      * @param bool $isDurable 是否持久化
      * @param bool $isAutoDelete 是否自动删除
-     * @param array $arguments 其他配置参数
+     * @param $arguments 其他配置参数
      * @return mixed|null
      */
     public function exchangeDeclare(
@@ -62,7 +62,7 @@ class ProducerServer implements ProducerInterface
         string $typeName = 'direct',
         bool $isDurable = true,
         bool $isAutoDelete = false,
-        array $arguments = []
+        $arguments = []
     )
     {
 

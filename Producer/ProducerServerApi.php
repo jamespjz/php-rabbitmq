@@ -16,6 +16,7 @@ use Jamespi\RabbitMQ\Common\Common;
 use Jamespi\RabbitMQ\Common\Basic;
 use Jamespi\RabbitMQ\Api\ProducerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
+use PhpAmqpLib\Wire\AMQPTable;
 class ProducerServerApi extends Basic
 {
     /**
@@ -66,7 +67,8 @@ class ProducerServerApi extends Basic
             $model = $producerInterface->connection($this->connection)->channel($this->channel);
             //设置备份交换器
             if ($this->config['is_ae']){
-                $exchangeArguments = ['alternate-exchange'=>'myAe'];
+                $exchangeArguments = new AMQPTable();
+                $exchangeArguments->set('alternate-exchange', 'myAe');
                 $model->exchangeDeclare(
                     'myAe',
                     'fanout',
@@ -77,7 +79,7 @@ class ProducerServerApi extends Basic
                 //声明队列
                 $model->queueDeclare('unroutedQueue', $isQueDurable, $isExclusive, $isAutoDelete);
                 //队列绑定
-                $model->queueBind($queueName, $exchangeName, '');
+                $model->queueBind('unroutedQueue', 'myAe', '');
             }
             //声明交换器
             if ($exchangeName){
