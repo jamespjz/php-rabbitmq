@@ -10,7 +10,7 @@
  * +----------------------------------------------------------------------
  */
 
-namespace Jamespi\RabbitMQ\Start;
+namespace Jamespi\RabbitMQ;
 
 use ReflectionClass;
 use Jamespi\RabbitMQ\Producer\ProducerServerApi;
@@ -68,7 +68,7 @@ class Start
         try{
             $class = new ReflectionClass($this->model);
             $class->getMethod($name);
-            $data = call_user_func_array([$this->model, $name], [$producerServer, $arguments]);
+            $data = call_user_func_array([$this->model, $name], [$producerServer, $arguments[0]]);
             $data = json_decode($data, true);
             if ($data['status'] == 'success')
                 return json_encode(['status'=>'success', 'msg'=>'调用成功！', 'data'=>$data['data']]);

@@ -35,13 +35,15 @@ interface ProducerInterface
      * @param string $typeName 交换器类型
      * @param bool $isDurable 是否持久化
      * @param bool $isAutoDelete 是否自动删除
+     * @param array $arguments 其他配置参数
      * @return mixed|null
      */
     public function exchangeDeclare(
         string $exchangeName = '',
         string $typeName = 'direct',
         bool $isDurable = true,
-        bool $isAutoDelete = false
+        bool $isAutoDelete = false,
+        array $arguments = []
     );
 
     /**
@@ -50,13 +52,15 @@ interface ProducerInterface
      * @param bool $isDurable 是否持久化
      * @param bool $isExclusive 是否排它队列
      * @param bool $isAutoDelete 是否自动删除
+     * @param array $arguments 其他配置参数
      * @return array|null
      */
     public function queueDeclare(
         string $queueName,
         bool $isDurable = true,
         bool $isExclusive = false,
-        bool $isAutoDelete = false
+        bool $isAutoDelete = false,
+        array $arguments = []
     );
 
     /**
@@ -64,12 +68,14 @@ interface ProducerInterface
      * @param string $queueName 队列名称
      * @param string $exchangeName 交换器名称
      * @param string $routing_key 绑定键
+     * @param array $arguments 其他配置参数
      * @return mixed|null
      */
     public function queueBind(
         string $queueName,
         string $exchangeName,
-        string $routing_key
+        string $routing_key,
+        array $arguments = []
     );
 
     /**
@@ -77,9 +83,15 @@ interface ProducerInterface
      * @param string $destination 交换器名称
      * @param string $source 交换器名称
      * @param string $routing_key 绑定key
+     * @param array $arguments 其他配置参数
      * @return mixed|null
      */
-    public function exchangeBind(string $destination, string $source, string $routing_key);
+    public function exchangeBind(
+        string $destination,
+        string $source,
+        string $routing_key,
+        array $arguments = []
+    );
 
     /**
      * 发送消息
@@ -91,7 +103,7 @@ interface ProducerInterface
      * @return mixed
      */
     public function basicPublish(
-        string $msg,
+        $msg,
         string $exchangeName,
         string $routing_key,
         bool $mandatory,
