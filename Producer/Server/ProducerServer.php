@@ -181,6 +181,17 @@ class ProducerServer implements ProducerInterface
     }
 
     /**
+     * Sets callback for basic_return
+     *
+     * @param  callable $callback
+     * @throws \InvalidArgumentException if $callback is not callable
+     */
+    public function setReturnListener($callBack)
+    {
+        return $this->channel->set_return_listener($callBack);
+    }
+
+    /**
      * 关闭信道/连接
      */
     public function close()

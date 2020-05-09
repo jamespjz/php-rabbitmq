@@ -111,6 +111,14 @@ interface ProducerInterface
     );
 
     /**
+     * Sets callback for basic_return
+     *
+     * @param  callable $callback
+     * @throws \InvalidArgumentException if $callback is not callable
+     */
+    public function setReturnListener($callBack);
+
+    /**
      * 关闭信道/连接
      */
     public function close();

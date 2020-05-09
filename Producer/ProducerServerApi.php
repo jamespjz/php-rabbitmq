@@ -56,6 +56,10 @@ class ProducerServerApi extends Basic
         $isQueDurable = $this->config['is_queue_persistence'];
         //消息是否持久化
         $isMessageDurable = ($this->config['is_message_persistence']) ? (array('delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT)) : (array('delivery_mode' => AMQPMessage::DELIVERY_MODE_NON_PERSISTENT));
+        //设置消息TTL
+        if($body['set_message_ttl_type']==2){
+            $isMessageDurable = array_merge($isMessageDurable, ['expiration' => $body['message_ttl']]);
+        }
         //消息体
         $msg = new AMQPMessage($body['msg'], $isMessageDurable);
         //开启严格模式
@@ -67,8 +71,9 @@ class ProducerServerApi extends Basic
             $model = $producerInterface->connection($this->connection)->channel($this->channel);
             //设置备份交换器
             if ($this->config['is_ae']){
-                $exchangeArguments = new AMQPTable();
-                $exchangeArguments->set('alternate-exchange', 'myAe');
+                $exchangeArguments = [
+                    'alternate-exchange' => 'myAe'
+                ];
                 $model->exchangeDeclare(
                     'myAe',
                     'fanout',
@@ -88,15 +93,32 @@ class ProducerServerApi extends Basic
                     $typeName,
                     $isExDurable,
                     $isAutoDelete,
-                    $exchangeArguments
+                    new AMQPTable($exchangeArguments)
                 );
             }
             //声明队列
-            $model->queueDeclare($queueName, $isQueDurable, $isExclusive, $isAutoDelete);
+            $queueArguments = [];
+            if($body['set_message_ttl_type']==1){
+                $queueArguments = [
+                    'x-message-ttl' => $body['message_ttl']
+                ];
+            }
+            $model->queueDeclare(
+                $queueName,
+                $isQueDurable,
+                $isExclusive,
+                $isAutoDelete,
+                new AMQPTable($queueArguments));
             //队列绑定
             $model->queueBind($queueName, $exchangeName, $routingKey);
             //发送消息
             $model->basicPublish($msg, $exchangeName, $routingKey, $isMandatory, false);
+            //开启mandatory失败消息回调返回给生产者
+            $model->setReturnListener(
+                function ($replyCode, $replyText, $exchangeName, $routingKey, AMQPMessage $message) {
+                    echo $replyCode . PHP_EOL . $replyText . PHP_EOL . $exchangeName . PHP_EOL . $routingKey;
+                    echo "Message returned with content " . $message->body . PHP_EOL;
+                });
             $this->close($model);
             $data = [
                 'exchange_name' => $exchangeName,
