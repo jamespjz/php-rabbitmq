@@ -35,6 +35,7 @@ interface ProducerInterface
      * @param string $typeName 交换器类型
      * @param bool $isDurable 是否持久化
      * @param bool $isAutoDelete 是否自动删除
+     * @param bool $isInternal 是否内置
      * @param $arguments 其他配置参数
      * @return mixed|null
      */
@@ -43,6 +44,7 @@ interface ProducerInterface
         string $typeName = 'direct',
         bool $isDurable = true,
         bool $isAutoDelete = false,
+        bool $isInternal = false,
         $arguments = []
     );
 
@@ -52,7 +54,7 @@ interface ProducerInterface
      * @param bool $isDurable 是否持久化
      * @param bool $isExclusive 是否排它队列
      * @param bool $isAutoDelete 是否自动删除
-     * @param array $arguments 其他配置参数
+     * @param $arguments 其他配置参数
      * @return array|null
      */
     public function queueDeclare(
@@ -60,7 +62,7 @@ interface ProducerInterface
         bool $isDurable = true,
         bool $isExclusive = false,
         bool $isAutoDelete = false,
-        array $arguments = []
+        $arguments = []
     );
 
     /**
@@ -117,6 +119,54 @@ interface ProducerInterface
      * @throws \InvalidArgumentException if $callback is not callable
      */
     public function setReturnListener($callBack);
+
+    /**
+     * 开启事务
+     * @return mixed
+     */
+    public function txSelect();
+
+    /**
+     * 事务提交
+     * @return mixed
+     */
+    public function txCommit();
+
+    /**
+     * 事务回滚
+     * @return mixed
+     */
+    public function txRollback();
+
+    /**
+     * 开启信道确认模式
+     * @return mixed
+     */
+    public function confirmSelect();
+
+    /**
+     * 普通同步confirm消息确认模式
+     * @return mixed
+     */
+    public function actionProducerConfirm();
+
+    /**
+     * 批量同步confirm消息确认模式
+     * @return mixed
+     */
+    public function actionProducerConfirms();
+
+    /**
+     * 异步confirm消息确认模式
+     * @return mixed
+     */
+    public function asynProducerConfirm();
+
+    /**
+     * 批量异步confirm消息确认模式
+     * @return mixed
+     */
+    public function asynProducerConfirms();
 
     /**
      * 关闭信道/连接

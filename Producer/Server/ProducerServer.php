@@ -54,6 +54,7 @@ class ProducerServer implements ProducerInterface
      * @param string $typeName 交换器类型
      * @param bool $isDurable 是否持久化
      * @param bool $isAutoDelete 是否自动删除
+     * @param bool $isInternal 是否内置
      * @param $arguments 其他配置参数
      * @return mixed|null
      */
@@ -62,6 +63,7 @@ class ProducerServer implements ProducerInterface
         string $typeName = 'direct',
         bool $isDurable = true,
         bool $isAutoDelete = false,
+        bool $isInternal = false,
         $arguments = []
     )
     {
@@ -72,7 +74,7 @@ class ProducerServer implements ProducerInterface
             false,
             $isDurable,
             $isAutoDelete,
-            false,
+            $isInternal,
             false,
             $arguments
         );
@@ -84,7 +86,7 @@ class ProducerServer implements ProducerInterface
      * @param bool $isDurable 是否持久化
      * @param bool $isExclusive 是否排它队列
      * @param bool $isAutoDelete 是否自动删除
-     * @param array $arguments 其他配置参数
+     * @param $arguments 其他配置参数
      * @return array|null
      */
     public function queueDeclare(
@@ -92,7 +94,7 @@ class ProducerServer implements ProducerInterface
         bool $isDurable = true,
         bool $isExclusive = false,
         bool $isAutoDelete = false,
-        array $arguments = []
+        $arguments = []
     )
     {
         return $this->channel->queue_declare(
@@ -189,6 +191,78 @@ class ProducerServer implements ProducerInterface
     public function setReturnListener($callBack)
     {
         return $this->channel->set_return_listener($callBack);
+    }
+
+    /**
+     * 开启事务
+     * @return mixed
+     */
+    public function txSelect()
+    {
+        return $this->channel->tx_select();
+    }
+
+    /**
+     * 事务提交
+     * @return mixed
+     */
+    public function txCommit()
+    {
+        return $this->channel->tx_commit();
+    }
+
+    /**
+     * 事务回滚
+     * @return mixed
+     */
+    public function txRollback()
+    {
+        return $this->channel->tx_rollback();
+    }
+
+    /**
+     * 开启信道确认模式
+     * @return mixed
+     */
+    public function confirmSelect()
+    {
+        return $this->channel->confirm_select();
+    }
+
+    /**
+     * 普通同步confirm消息确认模式
+     * @return mixed
+     */
+    public function actionProducerConfirm()
+    {
+        return $this->channel->wait_for_pending_acks();
+    }
+
+    /**
+     * 批量同步confirm消息确认模式
+     * @return mixed
+     */
+    public function actionProducerConfirms()
+    {
+        return $this->channel->wait_for_pending_acks_returns();
+    }
+
+    /**
+     * 异步confirm消息确认模式
+     * @return mixed
+     */
+    public function asynProducerConfirm()
+    {
+        return $this->channel->set_ack_handler();
+    }
+
+    /**
+     * 批量异步confirm消息确认模式
+     * @return mixed
+     */
+    public function asynProducerConfirms()
+    {
+        return $this->channel->set_nack_handler();
     }
 
     /**
