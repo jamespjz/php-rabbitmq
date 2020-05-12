@@ -25,7 +25,7 @@ class ProducerServerApi extends Basic
      * @param array $body
      * @return object|string
      */
-    public function addMessage(ProducerInterface $producerInterface ,array $body)
+    public function addMessage(ProducerInterface $producerInterface, array $body)
     {
         $queueArguments = [];
         $isAutoDelete = false;
@@ -135,7 +135,8 @@ class ProducerServerApi extends Basic
                 $isQueDurable,
                 $isExclusive,
                 $isAutoDelete,
-                new AMQPTable($queueArguments));
+                new AMQPTable($queueArguments)
+            );
             //队列绑定
             $model->queueBind($queueName, $exchangeName, $routingKey);
             //发送消息
@@ -239,11 +240,6 @@ class ProducerServerApi extends Basic
         );
 
         return $exchangeArguments;
-    }
-
-    protected function delayExchange()
-    {
-
     }
 
     /**
