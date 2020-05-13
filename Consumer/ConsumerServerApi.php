@@ -79,20 +79,12 @@ class ConsumerServerApi extends Basic
     protected function pushMessage($model, bool $autoAck, int $qosNumber, array $body, array $callback)
     {
         try {
-            //声明队列
-            $model->queueDeclare(
-                $body['queque_name'],
-                true,
-                false,
-                false,
-                new AMQPTable([])
-            );
             //回调函数
-            $callback = function ($message) use ($callback, $autoAck) {
+            $callback = function ($message) use ($callback, $autoAck, $model) {
                 try {
-                    call_user_func_array([$callback['class'], $callback['method']], [$message->body]);
+                    call_user_func_array([new $callback['class'], $callback['method']], [$message->body]);
                     if (!$autoAck)
-                        $message->delivery_info['channel']->basicAck($message->delivery_info['delivery_tag']);
+                        $model->basicAck($message->delivery_info);
                 } catch (\Exception $e) {
                     return Common::resultMsg('failed', 'error：' . $e->getMessage());
                 }
@@ -111,8 +103,8 @@ class ConsumerServerApi extends Basic
                 null,
                 $body['argument']
             );
-            while (count($model->callbacks)) {
-                $model->wait();
+            while (count($this->channel->callbacks)) {
+                $this->channel->wait();
             }
         }catch (\Exception $e){
             return Common::resultMsg('failed', 'Error：'.$e->getMessage());

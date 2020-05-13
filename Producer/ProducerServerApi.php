@@ -73,10 +73,8 @@ class ProducerServerApi extends Basic
         try{
             //开启死信队列
             if ($this->config['is_dead_exchange'])
-                $queueArguments = [
-                    'x-dead-letter-exchange' => $body['dead_exchange']['dlx_exchange'],
-                    'x-dead-letter-routing-key' => $body['dead_exchange']['dlx_routekey']
-                ];
+                $queueArguments['x-dead-letter-exchange'] = $body['dead_exchange']['dlx_exchange'];
+                $queueArguments['x-dead-letter-routing-key'] = $body['dead_exchange']['dlx_routekey'];
                 $dlxParams = [
                     'dlx_exchange' => $body['dead_exchange']['dlx_exchange'],
                     'dlx_type' => $body['dead_exchange']['dlx_type'],
@@ -92,9 +90,6 @@ class ProducerServerApi extends Basic
                     'dlx_routekey' => $body['dead_exchange']['dlx_routekey']
                 ];
                 $this->deadLetterExchange($model, $dlxParams);
-            //开启延时队列
-            if ($this->config['is_dead_exchange'])
-                $this->delayExchange();
             //设置备份交换器
             if ($this->config['is_ae']){
                 $aeParams = [
@@ -126,9 +121,7 @@ class ProducerServerApi extends Basic
             }
             //声明队列
             if($body['set_message_ttl_type']==1){
-                $queueArguments = [
-                    'x-message-ttl' => $body['message_ttl']
-                ];
+                $queueArguments['x-message-ttl'] = $body['message_ttl'];
             }
             $model->queueDeclare(
                 $queueName,
@@ -214,7 +207,7 @@ class ProducerServerApi extends Basic
     protected function backUpExchange($model, array $params)
     {
         $exchangeArguments = [
-            'alternate-exchange' => $params['ae-exchange']
+            'alternate-exchange' => $params['ae_exchange']
         ];
         $model->exchangeDeclare(
             $params['ae_exchange'],

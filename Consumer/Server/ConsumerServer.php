@@ -78,12 +78,12 @@ class ConsumerServer implements ConsumerInterface
 
     /**
      * 消费确认
-     * @param string $deliveryTag
+     * @param $deliveryTag
      * @return mixed
      */
-    public function basicAck(string $deliveryTag)
+    public function basicAck($delivery)
     {
-        return $this->channel->basic_ack($deliveryTag);
+        return $delivery['channel']->basic_ack($delivery['delivery_tag']);
     }
 
     /**
@@ -169,6 +169,10 @@ class ConsumerServer implements ConsumerInterface
     public function basicNack(string $deliveryTag, bool $multiple = false, bool $requeue = false)
     {
         return $this->channel->basic_nack($deliveryTag, $multiple, $requeue);
+    }
+
+    public function wait(){
+        return $this->channel->wait();
     }
 
     /**

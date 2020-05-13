@@ -20,11 +20,11 @@ return [
     /** 生产端 **/
     'is_mandatory' => false, //系统默认关闭【若需要特殊需求需要true开启,若无特殊需求可不必写入】
     'is_tx' => false, //是否开启事务【系统默认关闭，开启事务会保持高可靠性但会降低性能】
-    'is_producer_confirm' => true, //是否开启生产端确认机制【系统默认关闭，开启会保持高可靠性，与事务不同是如果采用异步模式，不会让发送端阻塞;confirm模式与事务模式是互斥的】
+    'is_producer_confirm' => false, //是否开启生产端确认机制【系统默认关闭，开启会保持高可靠性，与事务不同是如果采用异步模式，不会让发送端阻塞;confirm模式与事务模式是互斥的】
     'is_producer_confirm_type' => 0, //confirm消息确认模式，默认为普通模式【0：普通模式(同步串行) 1：批量模式(同步串行) 2：异步模式 3：批量异步模式】
     //若第一次没有开启AE而声明了交换器后再开启AE需要先将同名交换器删除再声明开启否则会报错
     'is_ae' => true, //是否开启备份交换器【开启严格模式默认开启mandatory,若开启AE则系统自动关闭mandatory】
-    'is_dead_exchange' => false, //是否开启死信队列【系统默认关闭】
+    'is_dead_exchange' => true, //是否开启死信队列【系统默认关闭】
     'is_delay_exchange' => false, //是否开启延迟队列【系统默认关闭】
     /** 消费端 **/
     'is_autoAck' => false, //系统默认false【若需要特殊需求需要true开启,若无特殊需求可不必写入】

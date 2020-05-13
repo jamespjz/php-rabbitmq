@@ -48,10 +48,10 @@ interface ConsumerInterface
 
     /**
      * 消费确认
-     * @param string $deliveryTag
+     * @param $deliveryTag
      * @return mixed
      */
-    public function basicAck(string $deliveryTag);
+    public function basicAck($deliveryTag);
 
     /**
      * 消息未确认上限
@@ -112,6 +112,8 @@ interface ConsumerInterface
      * @return mixed
      */
     public function basicNack(string $deliveryTag, bool $multiple = false, bool $requeue = false);
+
+    public function wait();
 
     /**
      * 关闭信道/连接

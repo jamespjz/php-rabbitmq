@@ -16,6 +16,7 @@ use ReflectionClass;
 use Jamespi\RabbitMQ\Producer\ProducerServerApi;
 use Jamespi\RabbitMQ\Consumer\ConsumerServerApi;
 use Jamespi\RabbitMQ\Producer\Server\ProducerServer;
+use Jamespi\RabbitMQ\Consumer\Server\ConsumerServer;
 class Start
 {
     /**
@@ -64,16 +65,19 @@ class Start
     public function __call(string $name, array $arguments)
     {
         // TODO: Implement __call() method.
-        $producerServer = new ProducerServer();
+        if ($this->type == 1)
+            $server = new ProducerServer();
+        else
+            $server = new ConsumerServer();
         try{
             $class = new ReflectionClass($this->model);
             $class->getMethod($name);
-            $data = call_user_func_array([$this->model, $name], [$producerServer, $arguments[0]]);
+            $data = call_user_func_array([$this->model, $name], [$server, $arguments[0]]);
             $data = json_decode($data, true);
             if ($data['status'] == 'success')
-                return json_encode(['status'=>'success', 'msg'=>'调用成功！', 'data'=>$data['data']]);
+                return json_encode(['status'=>'success', 'msg'=>'调用成功！', 'data'=>isset($data['data'])?$data['data']:[]]);
             else
-                return json_encode(['status'=> 'failed', 'msg'=>'Error：'.$data['msg'], 'data'=>$data['data']]);
+                return json_encode(['status'=> 'failed', 'msg'=>'Error：'.isset($data['msg'])?$data['msg']:[], 'data'=>isset($data['data'])?$data['data']:[]]);
         }catch (\Exception $e){
             return json_encode(['status'=> 'failed', 'msg'=>'Error：'.$e->getMessage()]);
         }
