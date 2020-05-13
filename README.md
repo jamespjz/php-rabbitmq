@@ -1,6 +1,6 @@
 # php-rabbitmq
 php基于rabbitmq实现消息队列的操作封装，支持单节点、集群模式
->使用版本说明：RabbitMQ v3.6.10 - PHP >=7.0 - Composer v1.10
+>使用版本说明：RabbitMQ >=3.6.10 - PHP >=7.0 - Composer v1.10
 
 # 简要说明：
 公司目前正在全面转微服务架构，为了让PHPER在分布式高并发场景下保证数据的准确性，特封装了基于RabbitMQ消息队列功能的插件，目前为version 0.1-dev。
