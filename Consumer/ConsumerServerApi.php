@@ -12,11 +12,11 @@
 
 namespace Jamespi\RabbitMQ\Consumer;
 
-use function foo\func;
 use ReflectionClass;
 use Jamespi\RabbitMQ\Common\Common;
 use Jamespi\RabbitMQ\Common\Basic;
 use Jamespi\RabbitMQ\Api\ConsumerInterface;
+use PhpAmqpLib\Wire\AMQPTable;
 class ConsumerServerApi extends Basic
 {
     /**
@@ -74,58 +74,98 @@ class ConsumerServerApi extends Basic
      * @param int $qosNumber
      * @param array $body
      * @param array $callback
+     * @return object|string
      */
     protected function pushMessage($model, bool $autoAck, int $qosNumber, array $body, array $callback)
     {
-        //声明队列
-        $model->queueDeclare(
-            $body['queque_name'],
-            true,
-            false,
-            false,
-            new AMQPTable([])
-        );
-        //回调函数
-        $callback = function ($message) use($callback){
-            try{
-                call_user_func_array([$callback['class'], $callback['method']], [$message->body]);
-                $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
-            }catch (\Exception $e){
-                return Common::resultMsg('failed', 'error：'.$e->getMessage());
+        try {
+            //声明队列
+            $model->queueDeclare(
+                $body['queque_name'],
+                true,
+                false,
+                false,
+                new AMQPTable([])
+            );
+            //回调函数
+            $callback = function ($message) use ($callback, $autoAck) {
+                try {
+                    call_user_func_array([$callback['class'], $callback['method']], [$message->body]);
+                    if (!$autoAck)
+                        $message->delivery_info['channel']->basicAck($message->delivery_info['delivery_tag']);
+                } catch (\Exception $e) {
+                    return Common::resultMsg('failed', 'error：' . $e->getMessage());
+                }
+            };
+            //信道上消费者所能保证最大未确认消息的数量
+            $model->basicQos(null, $qosNumber, null);
+            //消费消息
+            $model->basicConsume(
+                $body['queque_name'],
+                $body['consumer_tag'],
+                $body['no_local'],
+                $autoAck,
+                $body['exclusive'],
+                false,
+                $callback,
+                null,
+                $body['argument']
+            );
+            while (count($model->callbacks)) {
+                $model->wait();
             }
-        };
-        //信道上消费者所能保证最大未确认消息的数量
-        $model->basic_qos(null, $qosNumber, null);
-        //消费消息
-        $model->basic_consume(
-            $body['queque_name'],
-            $body['consumer_tag'],
-            $body['no_local'],
-            $autoAck,
-            $body['exclusive'],
-            false,
-            $callback,
-            null,
-            $body['argument']
-        );
-        while(count($model->callbacks)) {
-            $model->wait();
+        }catch (\Exception $e){
+            return Common::resultMsg('failed', 'Error：'.$e->getMessage());
         }
     }
 
-    protected function pullMessage()
+    /**
+     * 消费消息-拉模式
+     * @param $model
+     * @param bool $autoAck
+     * @param array $body
+     * @return object|string
+     */
+    protected function pullMessage($model, bool $autoAck, array $body)
     {
-
+        try{
+            //声明队列
+            $model->queueDeclare(
+                $body['queque_name'],
+                true,
+                false,
+                false,
+                new AMQPTable([])
+            );
+            //消费消息
+            $result = $model->basicGet($body['queque_name'], $autoAck);
+            if (!$autoAck)  $model->basicAck($result[0]->delivery_tag);
+        }catch (\Exception $e){
+            return Common::resultMsg('failed', 'Error：'.$e->getMessage());
+        }
     }
 
-    public function refuseMessage()
+    /**
+     * 消息拒绝 - 单条
+     * @param $model
+     * @param string $deliveryTag
+     * @param bool $requeue
+     */
+    protected function refuseMessage($model, string $deliveryTag, bool $requeue)
     {
-
+        $model->basicReject($deliveryTag, $requeue);
     }
 
-    public function batchRefuseMessage()
+    /**
+     * 消息拒绝 - 批量
+     * @param $model
+     * @param string $deliveryTag
+     * @param bool $multiple
+     * @param bool $requeue
+     */
+    protected function batchRefuseMessage($model, string $deliveryTag, bool $multiple, bool $requeue)
     {
-
+        $model->basicNack($deliveryTag, $multiple, $requeue);
     }
 
     /**
