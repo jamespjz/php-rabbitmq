@@ -78,6 +78,11 @@ class ConsumerServerApi extends Basic
      */
     protected function pushMessage($model, bool $autoAck, int $qosNumber, array $body, array $callback)
     {
+        $consumerTag = (isset($body['consumer_tag'])&&!empty($body['consumer_tag']))?$body['consumer_tag']:'';
+        $noLocal = (isset($body['no_local'])&&!empty($body['no_local']))?$body['no_local']:false;
+        $exclusive = (isset($body['exclusive'])&&!empty($body['exclusive']))?$body['exclusive']:false;
+        $argument = (isset($body['argument'])&&!empty($body['argument']))?$body['argument']:[];
+
         try {
             //回调函数
             $callback = function ($message) use ($callback, $autoAck, $model) {
@@ -94,14 +99,14 @@ class ConsumerServerApi extends Basic
             //消费消息
             $model->basicConsume(
                 $body['queque_name'],
-                $body['consumer_tag'],
-                $body['no_local'],
+                $consumerTag,
+                $noLocal,
                 $autoAck,
-                $body['exclusive'],
+                $exclusive,
                 false,
                 $callback,
                 null,
-                $body['argument']
+                $argument
             );
             while (count($this->channel->callbacks)) {
                 $this->channel->wait();
