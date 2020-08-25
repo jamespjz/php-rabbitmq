@@ -90,6 +90,7 @@ class ConsumerServerApi extends Basic
                     call_user_func_array([new $callback['class'], $callback['method']], [$message->body]);
                     if (!$autoAck)
                         $model->basicAck($message->delivery_info);
+//                    return Common::resultMsg('success', 'message:'.$message.'consumption is successful' );
                 } catch (\Exception $e) {
                     return Common::resultMsg('failed', 'error：' . $e->getMessage());
                 }
@@ -136,7 +137,8 @@ class ConsumerServerApi extends Basic
             );
             //消费消息
             $result = $model->basicGet($body['queque_name'], $autoAck);
-            if (!$autoAck)  $model->basicAck($result[0]->delivery_tag);
+            if (!$autoAck)  $model->basicAck($result->delivery_info);
+            return Common::resultMsg('success', "message：".$result->delivery_info['delivery_tag']." consumption is successful");
         }catch (\Exception $e){
             return Common::resultMsg('failed', 'Error：'.$e->getMessage());
         }

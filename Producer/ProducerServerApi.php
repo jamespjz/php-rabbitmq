@@ -72,25 +72,25 @@ class ProducerServerApi extends Basic
 
         try{
             //开启死信队列
-            if ($this->config['is_dead_exchange']){
+            if ($this->config['is_dead_exchange']) {
                 $queueArguments['x-dead-letter-exchange'] = $body['dead_exchange']['dlx_exchange'];
                 $queueArguments['x-dead-letter-routing-key'] = $body['dead_exchange']['dlx_routekey'];
                 $dlxParams = [
                     'dlx_exchange' => $body['dead_exchange']['dlx_exchange'],
                     'dlx_type' => $body['dead_exchange']['dlx_type'],
-                    'dlx_durable' => $body['dead_exchange']['dlx_durable']??true,
-                    'dlx_autoDelete' => $body['dead_exchange']['dlx_autoDelete']??false,
-                    'dlx_internal' => $body['dead_exchange']['dlx_internal']??false,
-                    'dlx_argument' => $body['dead_exchange']['dlx_argument']??[],
+                    'dlx_durable' => $body['dead_exchange']['dlx_durable'] ?? true,
+                    'dlx_autoDelete' => $body['dead_exchange']['dlx_autoDelete'] ?? false,
+                    'dlx_internal' => $body['dead_exchange']['dlx_internal'] ?? false,
+                    'dlx_argument' => $body['dead_exchange']['dlx_argument'] ?? [],
                     'dlx_queue' => $body['dead_exchange']['dlx_queue'],
-                    'dlx_queue_durable' => $body['dead_exchange']['dlx_queue_durable']??true,
-                    'dlx_queue_exclusive' => $body['dead_exchange']['dlx_queue_exclusive']??false,
-                    'dlx_queue_autoDelete' => $body['dead_exchange']['dlx_queue_autoDelete']??false,
-                    'dlx_queue_argument' => $body['dead_exchange']['dlx_queue_argument']??[],
+                    'dlx_queue_durable' => $body['dead_exchange']['dlx_queue_durable'] ?? true,
+                    'dlx_queue_exclusive' => $body['dead_exchange']['dlx_queue_exclusive'] ?? false,
+                    'dlx_queue_autoDelete' => $body['dead_exchange']['dlx_queue_autoDelete'] ?? false,
+                    'dlx_queue_argument' => $body['dead_exchange']['dlx_queue_argument'] ?? [],
                     'dlx_routekey' => $body['dead_exchange']['dlx_routekey']
                 ];
                 $this->deadLetterExchange($model, $dlxParams);
-			}
+            }
             //设置备份交换器
             if ($this->config['is_ae']){
                 $aeParams = [

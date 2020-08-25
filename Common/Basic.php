@@ -36,7 +36,7 @@ abstract class Basic
         $this->config = $config;
         $basic = $config['Basic'];
         try{
-            $this->connection = new AMQPStreamConnection($basic['host'], $basic['port'], $basic['username'], $basic['password']);
+            $this->connection = new AMQPStreamConnection($basic['host'], $basic['port'], $basic['username'], $basic['password'], $basic['vhost']);
         }catch (\Exception $e){
             return Common::resultMsg('failed', '连接失败：'.$e->getMessage());
         }
