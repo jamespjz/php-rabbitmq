@@ -57,7 +57,7 @@ class ConsumerServerApi extends Basic
                 $this->pushMessage($model, $autoAck, $qosNumber, $body, $callback);
                 break;
             case 2:
-                $this->pullMessage($model, $autoAck, $qosNumber, $body, $callback);
+                $this->pullMessage($model, $autoAck, $body);
                 break;
             default:
                 $this->pushMessage($model, $autoAck, $qosNumber, $body, $callback);

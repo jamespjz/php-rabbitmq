@@ -72,7 +72,7 @@ class ProducerServerApi extends Basic
 
         try{
             //开启死信队列
-            if ($this->config['is_dead_exchange'])
+            if ($this->config['is_dead_exchange']){
                 $queueArguments['x-dead-letter-exchange'] = $body['dead_exchange']['dlx_exchange'];
                 $queueArguments['x-dead-letter-routing-key'] = $body['dead_exchange']['dlx_routekey'];
                 $dlxParams = [
@@ -90,6 +90,7 @@ class ProducerServerApi extends Basic
                     'dlx_routekey' => $body['dead_exchange']['dlx_routekey']
                 ];
                 $this->deadLetterExchange($model, $dlxParams);
+			}
             //设置备份交换器
             if ($this->config['is_ae']){
                 $aeParams = [
