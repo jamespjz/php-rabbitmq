@@ -87,10 +87,14 @@ class ConsumerServerApi extends Basic
             //回调函数
             $callback = function ($message) use ($callback, $autoAck, $model) {
                 try {
-                    call_user_func_array([new $callback['class'], $callback['method']], [$message->body]);
-                    if (!$autoAck)
-                        $model->basicAck($message->delivery_info);
-//                    return Common::resultMsg('success', 'message:'.$message.'consumption is successful' );
+                    $data = call_user_func_array([new $callback['class'], $callback['method']], [$message->body]);
+                    if($data) {
+                        echo $data;
+                        if (!$autoAck)
+                            $model->basicAck($message->delivery_info);
+                    }else{
+                        echo Common::resultMsg('failed', '2222');
+                    }
                 } catch (\Exception $e) {
                     return Common::resultMsg('failed', 'error：' . $e->getMessage());
                 }
