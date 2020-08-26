@@ -96,7 +96,8 @@ class ConsumerServerApi extends Basic
                         echo Common::resultMsg('failed', '2222');
                     }
                 } catch (\Exception $e) {
-                    return Common::resultMsg('failed', 'error：' . $e->getMessage());
+                    echo Common::resultMsg('failed', 'error：' . $e->getMessage());
+					$this->refuseMessage($model, $message->delivery_info['delivery_tag'], false);
                 }
             };
             //信道上消费者所能保证最大未确认消息的数量
