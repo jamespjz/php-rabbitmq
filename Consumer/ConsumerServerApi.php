@@ -93,7 +93,7 @@ class ConsumerServerApi extends Basic
                 try {
                     $data = call_user_func_array([new $callback['class'], $callback['method']], [$message->body]);
                     if($data) {
-                        echo $data;
+                        //echo $data;
                         if (!$autoAck)
                             $model->basicAck($message->delivery_info);
                     }else{
@@ -107,7 +107,7 @@ class ConsumerServerApi extends Basic
                     }
 					$this->reRun_number = 0;
                 } catch (\Exception $e) {
-                    echo  Common::resultMsg('failed', 'error：' . $e->getMessage());
+                    //echo  Common::resultMsg('failed', 'error：' . $e->getMessage());
                     $this->refuseMessage($model, $message->delivery_info['delivery_tag'], false);
                 }
             };
