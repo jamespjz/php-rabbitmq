@@ -102,6 +102,11 @@ $config = [
         'password' => 'admin'
     ],
 
+    'retry' => [
+            'enable' => true, //是否开启自动重启
+            'max_attempts' => 3, //最大重试次数
+            'initial-interval' => 2 //第一次和第二次尝试发布或传递消息之间的间隔(s)
+        ],
     'is_autoAck' => false, //系统默认false【若需要特殊需求需要true开启,若无特殊需求可不必写入】
     'consumer_mode' => 1, //消费模式【系统默认是推模式，1：推模式 2：拉模式】
     'operating_mode' => 1, // 服务模式【1：单一节点模式  2：普通(集群)模式  3：镜像节点(集群)模式】

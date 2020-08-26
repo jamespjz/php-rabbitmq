@@ -19,6 +19,8 @@ use Jamespi\RabbitMQ\Api\ConsumerInterface;
 use PhpAmqpLib\Wire\AMQPTable;
 class ConsumerServerApi extends Basic
 {
+    protected $reRun_number = 0;
+
     /**
      * 消费消息
      * @param ConsumerInterface $consumerInterface
@@ -54,17 +56,19 @@ class ConsumerServerApi extends Basic
         $model = $consumerInterface->connection($this->connection)->channel($this->channel);
         switch ($consumerMode){
             case 1:
-                $this->pushMessage($model, $autoAck, $qosNumber, $body, $callback);
+                $result = $this->pushMessage($model, $autoAck, $qosNumber, $body, $callback);
                 break;
             case 2:
-                $this->pullMessage($model, $autoAck, $body);
+                $result = $this->pullMessage($model, $autoAck, $body);
                 break;
             default:
-                $this->pushMessage($model, $autoAck, $qosNumber, $body, $callback);
+                $result = $this->pushMessage($model, $autoAck, $qosNumber, $body, $callback);
                 break;
         }
 
         $this->close($model);
+
+        return $result;
     }
 
     /**
@@ -93,17 +97,24 @@ class ConsumerServerApi extends Basic
                         if (!$autoAck)
                             $model->basicAck($message->delivery_info);
                     }else{
-                        echo Common::resultMsg('failed', '2222');
+                        if (is_array($this->config['retry']) &&
+                            !empty($this->config['retry']) &&
+                            $this->config['retry']['enable'] &&
+                            $this->config['retry']['max_attempts']>0)
+                        {
+                            echo 1;
+                            $this->reRunConsumerMesage($model, $autoAck, $callback, $message);
+                        }
                     }
                 } catch (\Exception $e) {
-                    echo Common::resultMsg('failed', 'error：' . $e->getMessage());
-					$this->refuseMessage($model, $message->delivery_info['delivery_tag'], false);
+                    echo  Common::resultMsg('failed', 'error：' . $e->getMessage());
+                    $this->refuseMessage($model, $message->delivery_info['delivery_tag'], false);
                 }
             };
             //信道上消费者所能保证最大未确认消息的数量
             $model->basicQos(null, $qosNumber, null);
             //消费消息
-            $model->basicConsume(
+            $result = $model->basicConsume(
                 $body['queque_name'],
                 $consumerTag,
                 $noLocal,
@@ -120,6 +131,38 @@ class ConsumerServerApi extends Basic
         }catch (\Exception $e){
             return Common::resultMsg('failed', 'Error：'.$e->getMessage());
         }
+    }
+
+    /**
+     * 轮询重试消息消费
+     * @param $model
+     * @param $autoAck
+     * @param $callback
+     * @param $message
+     * @return mixed
+     */
+    protected function reRunConsumerMesage($model, $autoAck, $callback, $message){
+        $this->reRun_number++;
+        try{
+            if($this->config['retry']['max_attempts'] >= $this->reRun_number){
+                $data = call_user_func_array([new $callback['class'], $callback['method']], [$message->body]);
+                if(!$data){
+//                    echo Common::resultMsg('failed', '2222');
+                    sleep($this->config['retry']['initial-interval']);
+                    $this->reRunConsumerMesage($model, $autoAck, $callback, $message);
+                }else{
+                    if (!$autoAck)
+                        $model->basicAck($message->delivery_info);
+                }
+            }else{
+                $this->refuseMessage($model, $message->delivery_info['delivery_tag'], false);
+                return;
+            }
+        }catch (\Exception $e){
+            $this->refuseMessage($model, $message->delivery_info['delivery_tag'], false);
+            return;
+        }
+
     }
 
     /**
