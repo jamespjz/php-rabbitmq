@@ -151,7 +151,7 @@ class ConsumerServer implements ConsumerInterface
     /**
      * 消息拒绝 - 单条
      * @param string $deliveryTag 消息标识
-     * @param bool $requeue true重新入队，false直接移除
+     * @param bool $requeue true重新入队，false进入死信队列
      * @return mixed
      */
     public function basicReject(string $deliveryTag, bool $requeue)
@@ -162,7 +162,7 @@ class ConsumerServer implements ConsumerInterface
     /**
      * 消息拒绝 - 批量
      * @param string $deliveryTag 消息标识
-     * @param bool $requeue true重新入队，false直接移除
+     * @param bool $requeue true重新入队，false进入死信队列
      * @param bool $multiple false单条拒绝$deliveryTag，true拒绝$deliveryTag之前所有未确认消息
      * @return mixed
      */
