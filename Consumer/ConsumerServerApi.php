@@ -102,10 +102,10 @@ class ConsumerServerApi extends Basic
                             $this->config['retry']['enable'] &&
                             $this->config['retry']['max_attempts']>0)
                         {
-                            echo 1;
                             $this->reRunConsumerMesage($model, $autoAck, $callback, $message);
                         }
                     }
+					$this->reRun_number = 0;
                 } catch (\Exception $e) {
                     echo  Common::resultMsg('failed', 'error：' . $e->getMessage());
                     $this->refuseMessage($model, $message->delivery_info['delivery_tag'], false);
