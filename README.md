@@ -83,7 +83,11 @@ $body = [
     'is_queue_persistence' => true, //是否开启队列持久化
     'routing_key' => 'test_key', //绑定key
     'is_message_persistence' => true, //是否开启消息持久化
-    'msg' => '纵腾测试rabbitmq', //消息体
+    'msg' => [
+		'纵腾测试rabbitmq1',
+		'纵腾测试rabbitmq2',
+		'纵腾测试rabbitmq3'
+	], //消息体
 ];
 //生产
 echo (new Start())->run($type, $config)->addMessage($body);
