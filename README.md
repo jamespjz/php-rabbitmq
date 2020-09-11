@@ -87,7 +87,7 @@ $body = [
 		'纵腾测试rabbitmq1',
 		'纵腾测试rabbitmq2',
 		'纵腾测试rabbitmq3'
-	], //消息体
+	], //消息体(消息体可以为array也可以string，也可以不填)
 ];
 //生产
 echo (new Start())->run($type, $config)->addMessage($body);

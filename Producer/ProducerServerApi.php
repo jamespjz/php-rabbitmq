@@ -160,7 +160,14 @@ class ProducerServerApi extends Basic
                             break;
                     }
                 }
-                foreach ($body['msg'] as $value){
+                if (isset($body['msg']) && !empty($body['msg'])) {
+                    if (!is_array($body['msg'])) {
+                        $body['msg'] = [$body['msg']];
+                    }
+                }else{
+                    $body['msg'] = [''];
+                }
+                foreach ($body['msg'] as $value) {
                     //消息体
                     $msg = new AMQPMessage($value, $isMessageDurable);
                     $model->basicPublish($msg, $exchangeName, $routingKey, $isMandatory, false);
