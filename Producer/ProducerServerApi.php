@@ -61,8 +61,6 @@ class ProducerServerApi extends Basic
         if($body['set_message_ttl_type']==2){
             $isMessageDurable = array_merge($isMessageDurable, ['expiration' => $body['message_ttl']]);
         }
-        //消息体
-        $msg = new AMQPMessage($body['msg'], $isMessageDurable);
 
         try{
             $model = $producerInterface->connection($this->connection)->channel($this->channel);
@@ -162,7 +160,11 @@ class ProducerServerApi extends Basic
                             break;
                     }
                 }
-                $model->basicPublish($msg, $exchangeName, $routingKey, $isMandatory, false);
+                foreach ($body['msg'] as $value){
+                    //消息体
+                    $msg = new AMQPMessage($value, $isMessageDurable);
+                    $model->basicPublish($msg, $exchangeName, $routingKey, $isMandatory, false);
+                }
                 if ($this->config['is_tx'])    $model->txCommit();
             }catch (\Exception $e){
                 if ($this->config['is_tx'])    $model->txRollback();
